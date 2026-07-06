@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- ========================================= -->
+    <!-- META TAGS -->
+    <!-- ========================================= -->
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Sentiment Analysis Dashboard</title>
+
+    <meta name="description"
+          content="AI Sentiment Analysis Dashboard using Flask, Hugging Face, HTML, CSS and JavaScript">
+
+    <!-- ========================================= -->
+    <!-- GOOGLE FONT -->
+    <!-- ========================================= -->
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- ========================================= -->
+    <!-- FONT AWESOME -->
+    <!-- ========================================= -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- ========================================= -->
+    <!-- CSS -->
+    <!-- ========================================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<!-- ========================================= -->
+<!-- PARTICLES BACKGROUND -->
+<!-- ========================================= -->
+
+<div id="particles-js"></div>
+
+<!-- ========================================= -->
+<!-- SCROLL PROGRESS BAR -->
+<!-- ========================================= -->
+
+<div id="scrollProgress"></div>
+
+<!-- ========================================= -->
+<!-- NAVBAR -->
+<!-- ========================================= -->
+
+<nav class="navbar">
+
+    <div class="logo">
+
+        <i class="fa-solid fa-brain"></i>
+
+        AI Sentiment Dashboard
+
+    </div>
+
+    <ul class="nav-links">
+
+        <li><a href="#home">Home</a></li>
+
+        <li><a href="#analyzer">Analyzer</a></li>
+
+        <li><a href="#dashboard">Dashboard</a></li>
+
+        <li><a href="#history">History</a></li>
+
+        <li><a href="#contact">Contact</a></li>
+
+    </ul>
+
+</nav>
+
+<!-- ========================================= -->
+<!-- HERO SECTION -->
+<!-- ========================================= -->
+
+<section id="home"
+         class="hero">
+
+    <div class="hero-content">
+
+        <h1>
+
+            AI Sentiment Analysis Dashboard
+
+        </h1>
+
+        <h2 id="typingText">
+
+            Analyze Customer Reviews
+
+        </h2>
+
+        <p>
+
+            Analyze customer feedback using Artificial Intelligence,
+            Hugging Face Transformers and Flask.
+            Get instant sentiment prediction,
+            confidence score,
+            live analytics,
+            interactive charts
+            and business insights.
+
+        </p>
+
+        <div class="hero-buttons">
+
+            <button id="startAnalysisBtn"
+                    class="primary-btn">
+
+                <i class="fa-solid fa-rocket"></i>
+
+                Start Analysis
+
+            </button>
+
+            <button id="liveAnalyticsBtn"
+                    class="secondary-btn">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                Live Analytics
+
+            </button>
+
+        </div>
+
+        
+
+    </div>
+
+</section>
+
+
+
+<section id="analyzer" class="analyzer-section">
+
+    <div class="section-header">
+
+        <h2>
+
+            <i class="fa-solid fa-microchip"></i>
+
+            AI Sentiment Analyzer
+
+        </h2>
+
+        <p>
+
+            Enter a customer review and let Artificial Intelligence
+            analyze the sentiment with confidence.
+
+        </p>
+
+    </div>
+
+    <div class="analyzer-grid">
+
+        <!-- ===================================== -->
+        <!-- INPUT CARD -->
+        <!-- ===================================== -->
+
+        <div class="input-card">
+
+            <h3>
+
+                Customer Review
+
+            </h3>
+
+            <textarea
+                id="reviewInput"
+                placeholder="Write your customer review here..."></textarea>
+
+            <div class="button-group">
+
+                <button
+                    id="voiceBtn"
+                    class="voice-btn">
+
+                    <i class="fa-solid fa-microphone"></i>
+
+                    Voice
+
+                </button>
+
+                <button
+                    id="clearInput"
+                    class="danger-btn">
+
+                    <i class="fa-solid fa-trash"></i>
+
+                    Clear
+
+                </button>
+
+                <button
+                    id="analyzeBtn"
+                    class="primary-btn">
+
+                    <i class="fa-solid fa-brain"></i>
+
+                    Analyze Sentiment
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- RESULT CARD -->
+        <!-- ===================================== -->
+
+        <div class="result-card">
+
+            <div class="card-header">
+
+                <h3>
+
+                    Prediction Result
+
+                </h3>
+
+            </div>
+
+            <div class="emoji-box">
+
+                <span id="emoji">
+
+                    😊
+
+                </span>
+
+            </div>
+
+            <h2 id="sentimentResult">
+
+                Waiting...
+
+            </h2>
+
+            <h4>
+
+                Confidence
+
+            </h4>
+
+            <h3 id="confidenceScore">
+
+                0%
+
+            </h3>
+
+            <div class="progress">
+
+                <div id="progressFill"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- AI CONFIDENCE -->
+    <!-- ===================================== -->
+
+    <div class="confidence-card">
+
+        <h3>
+
+            AI Confidence Meter
+
+        </h3>
+
+        <div class="confidence-meter">
+
+            <div class="meter-top">
+
+                <span>
+
+                    AI Confidence
+
+                </span>
+
+                <span id="confidenceMeter">
+
+                    0%
+
+                </span>
+
+            </div>
+
+            <div class="meter-bar">
+
+                <div id="confidenceFill"></div>
+
+            </div>
+
+        </div>
+
+        <div class="confidence-stats">
+
+            <div class="confidence-box">
+
+                <h4>
+
+                    Average
+
+                </h4>
+
+                <span id="avgConfidence">
+
+                    0%
+
+                </span>
+
+            </div>
+
+            <div class="confidence-box">
+
+                <h4>
+
+                    Highest
+
+                </h4>
+
+                <span id="highestConfidence">
+
+                    0%
+
+                </span>
+
+            </div>
+
+            <div class="confidence-box">
+
+                <h4>
+
+                    Lowest
+
+                </h4>
+
+                <span id="lowestConfidence">
+
+                    0%
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<section id="dashboard" class="dashboard-section">
+
+    <div class="section-header">
+
+        <h2>
+
+            <i class="fa-solid fa-chart-pie"></i>
+
+            Live Analytics Dashboard
+
+        </h2>
+
+        <p>
+
+            Monitor your sentiment analysis results with real-time
+            statistics, interactive charts and AI-powered insights.
+
+        </p>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- DASHBOARD CARDS -->
+    <!-- ===================================== -->
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon positive">
+
+                <i class="fa-solid fa-comments"></i>
+
+            </div>
+
+            <h2 id="totalReviews">
+
+                0
+
+            </h2>
+
+            <p>
+
+                Total Reviews
+
+            </p>
+
+        </div>
+
+        
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- CHARTS -->
+    <!-- ===================================== -->
+
+    <div class="chart-grid">
+
+        <div class="chart-card">
+
+            <div class="card-header">
+
+                <h3>
+
+                    Sentiment Distribution
+
+                </h3>
+
+            </div>
+
+            <canvas id="sentimentPieChart"></canvas>
+
+        </div>
+
+        <div class="chart-card">
+
+            <div class="card-header">
+
+                <h3>
+
+                    Sentiment Comparison
+
+                </h3>
+
+            </div>
+
+            <canvas id="sentimentBarChart"></canvas>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- AI BUSINESS INSIGHTS -->
+    <!-- ===================================== -->
+
+    <div class="insight-card">
+
+        <div class="card-header">
+
+            <h3>
+
+                <i class="fa-solid fa-lightbulb"></i>
+
+                AI Business Insights
+
+            </h3>
+
+        </div>
+
+        <div id="businessInsights">
+
+            <div class="insight-item">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>
+
+                    Analyze customer reviews to generate AI-powered business recommendations.
+
+                </span>
+
+            </div>
+
+            <div class="insight-item">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>
+
+                    Live insights will automatically update after every sentiment prediction.
+
+                </span>
+
+            </div>
+
+            <div class="insight-item">
+
+                <i class="fa-solid fa-brain"></i>
+
+                <span>
+
+                    AI will identify customer satisfaction trends and overall sentiment performance.
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section id="history" class="history-section">
+
+    <div class="section-header">
+
+        <h2>
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            Analysis History
+
+        </h2>
+
+        <p>
+
+            View, search, copy, delete and export all previous
+            sentiment analysis results.
+
+        </p>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- HISTORY CONTROLS -->
+    <!-- ===================================== -->
+
+    <div class="history-controls">
+
+        <div class="search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="text"
+                id="historySearch"
+                placeholder="Search previous reviews...">
+
+        </div>
+
+        <div class="history-buttons">
+
+            <button
+                id="exportCSV"
+                class="gold-btn">
+
+                <i class="fa-solid fa-file-csv"></i>
+
+                Export CSV
+
+            </button>
+
+            <button
+                id="clearHistory"
+                class="danger-btn">
+
+                <i class="fa-solid fa-trash"></i>
+
+                Clear History
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- HISTORY CONTAINER -->
+    <!-- ===================================== -->
+
+    <div
+        id="historyContainer"
+        class="history-container">
+
+        <!-- Empty State -->
+
+        <div class="empty-history">
+
+            <i class="fa-solid fa-folder-open"></i>
+
+            <h3>
+
+                No Analysis Yet
+
+            </h3>
+
+            <p>
+
+                Your analyzed customer reviews will appear here.
+
+            </p>
+
+        </div>
+
+        <!--
+
+        JavaScript will generate cards like this:
+
+        <div class="history-card">
+
+            <div class="history-top">
+
+                <span class="history-date">
+
+                    30 Jun 2026 • 10:35 AM
+
+                </span>
+
+                <span class="positive-badge">
+
+                    POSITIVE
+
+                </span>
+
+            </div>
+
+            <div class="history-review">
+
+                Excellent product with amazing quality.
+
+            </div>
+
+            <div class="history-bottom">
+
+                <span>
+
+                    Confidence : 98.45%
+
+                </span>
+
+                <div class="history-actions">
+
+                    <button class="copy-btn">
+
+                        <i class="fa-solid fa-copy"></i>
+
+                        Copy
+
+                    </button>
+
+                    <button class="delete-btn">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        -->
+
+    </div>
+
+</section>
+
+
+
+<section id="performance" class="performance-section">
+
+    <div class="section-header">
+
+        <h2>
+
+            <i class="fa-solid fa-gauge-high"></i>
+
+            Performance Dashboard
+
+        </h2>
+
+        <p>
+
+            Monitor AI performance, confidence level,
+            prediction accuracy and customer satisfaction
+            using real-time analytics.
+
+        </p>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- PERFORMANCE CARDS -->
+    <!-- ===================================== -->
+
+    <div class="performance-grid">
+
+        <div class="performance-card">
+
+            <div class="performance-icon accuracy">
+
+                <i class="fa-solid fa-bullseye"></i>
+
+            </div>
+
+            <h3>
+
+                AI Accuracy
+
+            </h3>
+
+            <h2 id="accuracyValue">
+
+                98%
+
+            </h2>
+
+            <p>
+
+                Average model prediction accuracy.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- AI MODEL INFORMATION -->
+    <!-- ===================================== -->
+
+    <div class="model-card">
+
+        <div class="card-header">
+
+            <h3>
+
+                <i class="fa-solid fa-robot"></i>
+
+                AI Model Information
+
+            </h3>
+
+        </div>
+
+        <div class="model-grid">
+
+            <div class="model-item">
+
+                <h4>
+
+                    Model
+
+                </h4>
+
+                <p>
+
+                    Hugging Face Transformers
+
+                </p>
+
+            </div>
+
+            <div class="model-item">
+
+                <h4>
+
+                    Backend
+
+                </h4>
+
+                <p>
+
+                    Flask (Python)
+
+                </p>
+
+            </div>
+
+            <div class="model-item">
+
+                <h4>
+
+                    Framework
+
+                </h4>
+
+                <p>
+
+                    HTML • CSS • JavaScript
+
+                </p>
+
+            </div>
+
+            <div class="model-item">
+
+                <h4>
+
+                    Deployment
+
+                </h4>
+
+                <p>
+
+                    Render Cloud Platform
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- AI RECOMMENDATIONS -->
+    <!-- ===================================== -->
+
+    <div class="recommendation-card">
+
+        <div class="card-header">
+
+            <h3>
+
+                <i class="fa-solid fa-lightbulb"></i>
+
+                AI Recommendations
+
+            </h3>
+
+        </div>
+
+        <ul id="recommendationList">
+
+            <li>
+
+                Analyze customer reviews regularly to identify
+                trends and improve customer satisfaction.
+
+            </li>
+
+            <li>
+
+                Monitor negative reviews to resolve issues
+                before they affect your business.
+
+            </li>
+
+            <li>
+
+                Use AI confidence scores to validate prediction
+                reliability.
+
+            </li>
+
+            <li>
+
+                Export review history for further business
+                reporting and analysis.
+
+            </li>
+
+        </ul>
+
+    </div>
+
+</section>
+
+
+
+<section id="shortcuts" class="shortcut-section">
+
+    <div class="section-header">
+
+        <h2>
+
+            <i class="fa-solid fa-keyboard"></i>
+
+            Keyboard Shortcuts
+
+        </h2>
+
+        <p>
+
+            Improve your productivity using quick keyboard shortcuts.
+
+        </p>
+
+    </div>
+
+    <div class="shortcut-grid">
+
+        <div class="shortcut-card">
+
+            <kbd>Ctrl</kbd>
+
+            +
+
+            <kbd>Enter</kbd>
+
+            <span>
+
+                Analyze Review
+
+            </span>
+
+        </div>
+
+        <div class="shortcut-card">
+
+            <kbd>Ctrl</kbd>
+
+            +
+
+            <kbd>L</kbd>
+
+            <span>
+
+                Toggle Live Analytics
+
+            </span>
+
+        </div>
+
+        <div class="shortcut-card">
+
+            <kbd>Esc</kbd>
+
+            <span>
+
+                Clear Input
+
+            </span>
+
+        </div>
+
+        <div class="shortcut-card">
+
+            <kbd>Ctrl</kbd>
+
+            +
+
+            <kbd>S</kbd>
+
+            <span>
+
+                Save Draft
+
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- CONTACT -->
+<!-- ===================================================== -->
+
+<section id="contact" class="contact-section">
+
+    <div class="section-header">
+
+        <h2>
+
+            <i class="fa-solid fa-address-card"></i>
+
+            Contact & Connect
+
+        </h2>
+
+        <p>
+
+            Feel free to connect with me for collaboration,
+            internships, projects or opportunities.
+
+        </p>
+
+    </div>
+
+    <div class="contact-grid">
+
+        <!-- EMAIL -->
+
+        <div class="contact-card">
+
+            <i class="fa-solid fa-envelope"></i>
+
+            <h3>
+
+                Email
+
+            </h3>
+
+            <a href="mailto:bhowmikrohan83@gmail.com">
+
+                bhowmikrohan83@gmail.com
+
+            </a>
+
+        </div>
+
+        <!-- LINKEDIN -->
+
+        <div class="contact-card">
+
+            <i class="fa-brands fa-linkedin"></i>
+
+            <h3>
+
+                LinkedIn
+
+            </h3>
+
+            <a href="https://www.linkedin.com/in/rohan-bhowmik-b014473a1"
+
+               target="_blank">
+
+                Visit Profile
+
+            </a>
+
+        </div>
+
+        <!-- GITHUB -->
+
+        <div class="contact-card">
+
+            <i class="fa-brands fa-github"></i>
+
+            <h3>
+
+                GitHub
+
+            </h3>
+
+            <a href="https://github.com/rohanbhowm25308"
+
+               target="_blank">
+
+                View Repository
+
+            </a>
+
+        </div>
+
+        <!-- PHONE -->
+
+        <div class="contact-card">
+
+            <i class="fa-solid fa-phone"></i>
+
+            <h3>
+
+                Contact Number
+
+            </h3>
+
+            <a href="tel:+917982914191">
+
+                +91 7982914191
+
+            </a>
+
+        </div>
+
+        <!-- LOCATION -->
+
+        <div class="contact-card">
+
+            <i class="fa-solid fa-location-dot"></i>
+
+            <h3>
+
+                Location
+
+            </h3>
+
+            <p>
+
+                India
+
+            </p>
+
+        </div>
+
+
+
+    </div>
+
+</section>
+
+
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-logo">
+
+            <h2>
+
+                <i class="fa-solid fa-brain"></i>
+
+                AI Sentiment Analysis Dashboard
+
+            </h2>
+
+            <p>
+
+                A modern AI-powered dashboard built using
+                Flask, Hugging Face Transformers,
+                HTML, CSS and JavaScript for
+                intelligent customer review analysis.
+
+            </p>
+
+        </div>
+
+        <!-- ================================= -->
+
+        <div class="footer-links">
+
+            <h3>
+
+                Quick Links
+
+            </h3>
+
+            <ul>
+
+                <li>
+
+                    <a href="#home">
+
+                        Home
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="#analyzer">
+
+                        Analyzer
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="#dashboard">
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="#history">
+
+                        History
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="#contact">
+
+                        Contact
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+        <!-- ================================= -->
+
+        <div class="footer-tech">
+
+            <h3>
+
+                Technologies
+
+            </h3>
+
+            <ul>
+
+                <li>
+
+                    HTML5
+
+                </li>
+
+                <li>
+
+                    CSS3
+
+                </li>
+
+                <li>
+
+                    JavaScript
+
+                </li>
+
+                <li>
+
+                    Flask
+
+                </li>
+
+                <li>
+
+                    Hugging Face
+
+                </li>
+
+                <li>
+
+                    Chart.js
+
+                </li>
+
+            </ul>
+
+        </div>
+
+        <!-- ================================= -->
+
+        <div class="footer-social">
+
+            <h3>
+
+                Connect
+
+            </h3>
+
+            <div class="social-icons">
+
+                <a href="https://github.com/rohanbhowm25308"
+
+                   target="_blank">
+
+                    <i class="fab fa-github"></i>
+
+                </a>
+
+                <a href="https://www.linkedin.com/in/rohan-bhowmik-b014473a1"
+
+                   target="_blank">
+
+                    <i class="fab fa-linkedin"></i>
+
+                </a>
+
+                <a href="mailto:bhowmikrohan83@gmail.com">
+
+                    <i class="fas fa-envelope"></i>
+
+                </a>
+
+                <a href="tel:+917982914191">
+
+                    <i class="fas fa-phone"></i>
+
+                </a>
+
+                <a href="https://accountscenter.instagram.com/profiles/17841446564309356/">
+
+                        <i class="fab fa-instagram"></i>
+
+                
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================================= -->
+
+    <hr>
+
+    <div class="footer-bottom">
+
+        <p>
+
+            © 2026 AI Sentiment Analysis Dashboard.
+
+            All Rights Reserved.
+
+        </p>
+
+        <p>
+
+            Designed & Developed by
+
+            <strong>
+
+                Rohan Bhowmik
+
+            </strong>
+
+        </p>
+
+    </div>
+
+</footer>
+
+<!-- ===================================================== -->
+<!-- BACK TO TOP BUTTON -->
+<!-- ===================================================== -->
+
+<button id="backToTop"
+
+        class="back-to-top"
+
+        title="Back to Top">
+
+    <i class="fas fa-arrow-up"></i>
+
+</button>
+
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Particles.js -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>
