@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Diagnosis Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+ <div id="particles-js"></div>
+ <div class="dashboard">
+
+    <div class="header">
+        <h1> Medical Diagnosis Assistant</h1>
+        <p>AI-Powered Healthcare Prediction System</p>
+    </div>
+
+    <div class="stats-container">
+
+        <div class="stat-card">
+            <h3>AI Model</h3>
+            <p>Random Forest</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Status</h3>
+            <p>Active</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Prediction</h3>
+            <p>Real-Time</p>
+        </div>
+
+    </div>
+
+    <div class="main-card">
+
+        <div class="input-group">
+            <label>Patient Name</label>
+            <input
+                type="text"
+                id="patientName"
+                placeholder="Enter Patient Name">
+        </div>
+       
+
+        <h2>Select Symptoms</h2>
+
+        <div class="symptoms">
+
+            <label><input type="checkbox" id="fever"> Fever</label>
+            <label><input type="checkbox" id="cough"> Cough</label>
+            <label><input type="checkbox" id="headache"> Headache</label>
+            <label><input type="checkbox" id="fatigue"> Fatigue</label>
+            <label><input type="checkbox" id="vomiting"> Vomiting</label>
+            <label><input type="checkbox" id="sore_throat"> Sore Throat</label>
+            <label><input type="checkbox" id="runny_nose"> Runny Nose</label>
+            <label><input type="checkbox" id="body_pain"> Body Pain</label>
+            <label><input type="checkbox" id="shortness_of_breath"> Shortness of Breath</label>
+            <label><input type="checkbox" id="chest_pain"> Chest Pain</label>
+            <label><input type="checkbox" id="nausea"> Nausea</label>
+            <label><input type="checkbox" id="diarrhea"> Diarrhea</label>
+            <label><input type="checkbox" id="loss_of_taste"> Loss of Taste</label>
+            <label><input type="checkbox" id="loss_of_smell"> Loss of Smell</label>
+            <label><input type="checkbox" id="dizziness"> Dizziness</label>
+
+        </div>
+
+
+
+        <button onclick="predictDisease()">
+            Analyze Symptoms
+        </button>
+
+        <div class="result-box"></div>
+             <h2>Prediction Result</h2>
+            <div id="result"></div>
+
+        </div>
+
+        <button id="downloadBtn" onclick="downloadPDF()">
+            Download Medical Report
+        </button>
+
+        <div class="history-section">
+
+    <h2>📋 Prediction History</h2>
+
+    <table id="historyTable">
+
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Disease</th>
+                <th>Confidence</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+
+        <tbody id="historyBody">
+
+        </tbody>
+
+    </table>
+
+</div>
+
+    </div>
+
+</div>
+ 
+
+
+
+
+
+<div class="chatbot-btn" onclick="toggleChat()">
+    💬
+</div>
+
+<div class="chat-container" id="chatContainer">
+
+    <div class="chat-header">
+        Medical AI Assistant
+    </div>
+
+    <div class="chat-body" id="chatBody">
+
+        <div class="bot-message">
+            Hello <br>
+            How can I help you today?
+        </div>
+
+    </div>
+
+    <div class="chat-input">
+
+        <input
+            type="text"
+            id="chatInput"
+            placeholder="Ask a medical question...">
+        
+        <button onclick="startVoiceInput()" class="mic-btn">
+            🎤
+        </button>
+
+        <button onclick="sendMessage()">
+            Send
+        </button>
+
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
+
+
+

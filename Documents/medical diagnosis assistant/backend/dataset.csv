@@ -1,0 +1,11 @@
+fever,cough,headache,fatigue,vomiting,sore_throat,runny_nose,body_pain,shortness_of_breath,chest_pain,nausea,diarrhea,loss_of_taste,loss_of_smell,dizziness,disease
+1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,Flu
+0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,Common Cold
+1,0,1,1,1,0,0,1,0,0,0,0,0,0,0,Dengue
+1,1,0,1,0,0,0,0,0,0,0,0,1,1,0,COVID-19
+0,0,1,0,0,0,0,0,0,0,1,0,0,0,1,Migraine
+0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,Food Poisoning
+0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,Bronchitis
+1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,Pneumonia
+0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,Sinusitis
+1,0,0,1,0,0,0,1,0,0,0,0,0,0,0,Viral Infection
