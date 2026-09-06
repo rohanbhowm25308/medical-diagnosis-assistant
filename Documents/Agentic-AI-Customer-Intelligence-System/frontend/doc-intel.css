@@ -1,0 +1,191 @@
+/* =========================================================================
+   doc-intel.css — the AI Document Intelligence Dashboard (Summary, Key
+   Info, Sections, Notes, Quiz, Compare, Score). Reuses design tokens from
+   style.css (--accent, --glass-border, etc.) for visual consistency.
+========================================================================= */
+
+.doc-intel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 22px;
+}
+.doc-intel-tab {
+  padding: 9px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.03);
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.doc-intel-tab:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.doc-intel-tab.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #04121c;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.doc-intel-panel { animation: panel-fade-in 0.2s ease; }
+@keyframes panel-fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- Summary panel ---- */
+.doc-summary-grid { display: grid; gap: 16px; }
+.doc-summary-block {
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid var(--accent2);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.doc-summary-block h5 { margin: 0 0 8px; font-size: 0.95rem; color: var(--accent2); }
+.doc-summary-block p, .doc-summary-block ul { margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--text); }
+.doc-summary-block ul { padding-left: 20px; }
+.doc-summary-block li { margin-bottom: 4px; }
+.doc-summary-block.empty { opacity: 0.5; font-style: italic; }
+
+/* ---- Key Info (entities) panel ---- */
+.doc-entity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.doc-entity-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; border: 1px solid var(--glass-border); }
+.doc-entity-card .entity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.doc-entity-card .entity-icon { font-size: 1.3rem; }
+.doc-entity-card .entity-count { font-size: 1.4rem; font-weight: 700; color: var(--accent2); }
+.doc-entity-card .entity-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.doc-entity-card ul { list-style: none; padding: 0; margin: 0; max-height: 140px; overflow-y: auto; }
+.doc-entity-card li { font-size: 0.82rem; padding: 3px 0; color: var(--text); border-bottom: 1px solid rgba(255,255,255,0.04); }
+.doc-entity-card li:last-child { border-bottom: none; }
+
+/* ---- Sections panel ---- */
+.doc-section-list { display: flex; flex-direction: column; gap: 10px; }
+.doc-section-item {
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  padding: 12px 16px;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.doc-section-item:hover { background: rgba(255,255,255,0.06); }
+.doc-section-item .section-num { color: var(--accent2); font-weight: 700; margin-right: 8px; }
+.doc-section-item .section-title { font-weight: 600; }
+.doc-section-item .section-preview { display: none; margin-top: 8px; font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+.doc-section-item.expanded .section-preview { display: block; }
+
+/* ---- Notes panel ---- */
+.doc-notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.doc-notes-grid .doc-summary-block:last-child { grid-column: 1 / -1; }
+@media (max-width: 800px) { .doc-notes-grid { grid-template-columns: 1fr; } }
+.doc-concept-pill {
+  display: inline-block;
+  padding: 5px 12px;
+  margin: 3px;
+  border-radius: 14px;
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--accent2);
+  font-size: 0.82rem;
+}
+
+/* ---- Quiz panel ---- */
+.doc-quiz-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.doc-quiz-controls select {
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  font-size: 0.82rem;
+}
+.doc-quiz-question {
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 14px;
+  border: 1px solid var(--glass-border);
+}
+.doc-quiz-question .quiz-q-title { font-weight: 600; margin-bottom: 12px; line-height: 1.5; }
+.doc-quiz-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+.doc-quiz-option:hover { background: rgba(255,255,255,0.08); }
+.doc-quiz-option.correct { background: rgba(52,211,153,0.18); border-color: var(--green); }
+.doc-quiz-option.incorrect { background: rgba(248,113,113,0.18); border-color: #f87171; }
+.doc-quiz-explanation { margin-top: 10px; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.doc-quiz-score { text-align: center; padding: 20px; }
+.doc-quiz-score .score-value { font-size: 2.2rem; font-weight: 800; color: var(--accent2); }
+.doc-quiz-shortanswer textarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  font-family: inherit;
+  resize: vertical;
+}
+.doc-quiz-sample { margin-top: 10px; font-size: 0.82rem; color: var(--muted); background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; display:none; }
+
+/* ---- Compare panel ---- */
+.doc-compare-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 800px) { .doc-compare-columns { grid-template-columns: 1fr; } }
+.doc-compare-col h5 { margin: 0 0 10px; font-size: 0.9rem; }
+.doc-compare-col.added h5 { color: var(--green); }
+.doc-compare-col.removed h5 { color: #f87171; }
+.doc-compare-item { font-size: 0.82rem; padding: 8px 10px; margin-bottom: 6px; border-radius: 8px; line-height: 1.5; }
+.doc-compare-col.added .doc-compare-item { background: rgba(52,211,153,0.1); border-left: 3px solid var(--green); }
+.doc-compare-col.removed .doc-compare-item { background: rgba(248,113,113,0.1); border-left: 3px solid #f87171; }
+.doc-compare-changed-item {
+  background: rgba(251,191,36,0.08);
+  border-left: 3px solid var(--amber);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.doc-compare-changed-item .before { color: #f87171; text-decoration: line-through; opacity: 0.8; }
+.doc-compare-changed-item .after { color: var(--green); }
+
+/* ---- Score panel ---- */
+.doc-score-wrap { display: flex; gap: 30px; align-items: center; flex-wrap: wrap; }
+.doc-score-checklist { flex: 1; min-width: 240px; }
+.doc-score-check-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.88rem; }
+.doc-score-check-item .check-icon { font-size: 1.1rem; }
+.doc-score-check-item.pass { color: var(--text); }
+.doc-score-check-item.fail { color: var(--muted); }
+
+.doc-quiz-controls select option {
+  background: #0b1220;
+  color: var(--text);
+}
+
+.doc-score-gauge-block { position: relative; width: 140px; height: 140px; flex-shrink: 0; }
+.doc-score-gauge-block .gauge-svg { width: 140px; height: 140px; margin: 0; }
+.doc-score-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+.doc-score-label .score-num { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1; }
+.doc-score-label .score-denom { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+/* --- Nudge the percentage text to sit dead-center inside the
+   Dataset Health Score / AI Confidence Meter circles --- */
+.gauge-label {
+  margin-top: -95px;
+}

@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+pandas
+numpy
+scikit-learn
+python-multipart
+groq
+fpdf2
+python-dotenv
+python-pptx
+pdfplumber
+python-docx
+pytesseract
+Pillow
+google-auth
+cryptography

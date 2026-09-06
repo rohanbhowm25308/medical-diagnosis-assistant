@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agentic AI CSV Intelligence</title>
+<style>html:not(.auth-ok){ visibility:hidden; }</style>
+<script>
+  // Auth guard: hide the dashboard (via the CSS rule above) until we've
+  // confirmed a valid login session with the backend. No session -> bounce
+  // to login.html before anything renders.
+  (function () {
+    fetch('/api/session', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.authenticated) {
+          window.location.replace('login.html');
+        } else {
+          document.documentElement.classList.add('auth-ok');
+        }
+      })
+      .catch(function () { window.location.replace('login.html'); });
+  })();
+</script>
+<link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="advanced.css"/>
+<link rel="stylesheet" href="doc-intel.css"/>
+<script src="chart.umd.min.js"></script>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="logo">🤖 <span>Agentic AI</span></div>
+  <div class="nav-links">
+    <a href="#home">Home</a>
+    <a href="#features">Features</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#consultant">AI Consultant</a>
+    <a href="#insights">AI Insights</a>
+    <a href="#whatif">What-If</a>
+    <a href="#docIntel">Doc Intel</a>
+    <a href="#chat">Assistant</a>
+    <a href="#history">History</a>
+  </div>
+  <button class="btn btn-primary" id="navUploadBtn">📤 Upload File</button>
+  <button class="btn btn-outline" id="logoutBtn" style="margin-left:8px;" title="Sign out">⏻ Logout</button>
+</nav>
+<script>
+  document.getElementById('logoutBtn').addEventListener('click', async function () {
+    try {
+      await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+    } finally {
+      window.location.href = 'login.html';
+    }
+  });
+</script>
+
+<!-- AUTO DASHBOARD LOADING OVERLAY (feature: AI Auto Dashboard) -->
+<div class="ai-loading-overlay" id="aiLoadingOverlay" style="display:none;">
+  <div class="ai-loading-box glass-card">
+    <div class="ai-loading-brain">🧠</div>
+    <h3>AI is reading your dataset...</h3>
+    <ul class="ai-loading-steps" id="aiLoadingSteps">
+      <li data-step="cols">Detecting Columns</li>
+      <li data-step="clean">Cleaning Data</li>
+      <li data-step="train">Training Model</li>
+      <li data-step="insights">Finding Insights</li>
+      <li data-step="dash">Generating Dashboard</li>
+      <li data-step="report">Preparing Report</li>
+    </ul>
+    <div class="ai-process-log" id="aiProcessLog"></div>
+  </div>
+</div>
+
+<!-- LIVE NOTIFICATIONS (feature: AI Live Notifications) -->
+<div class="ai-toast-stack" id="aiToastStack"></div>
+
+<!-- TALKING AVATAR (feature: AI Talking Avatar) -->
+<div class="ai-avatar-widget" id="aiAvatarWidget">
+  <div class="ai-avatar-bubble" id="aiAvatarBubble" style="display:none;"></div>
+  <div class="ai-avatar-face" id="aiAvatarFace" title="AI Assistant">🤖</div>
+</div>
+
+<!-- ACHIEVEMENTS TRAY (feature: AI Achievement System) -->
+<div class="ai-achievements-tray" id="achievementsTray">
+  <div class="ai-achievements-toggle" id="achievementsToggle">🏆 <span id="achievementCount">0</span>/6</div>
+  <div class="ai-achievements-list" id="achievementsList" style="display:none;"></div>
+</div>
+
+<div class="cold-start-banner" id="coldStartBanner" style="display:none;">
+  <span class="cold-start-spinner"></span>
+  <span class="cold-start-text">Waking up the server...</span>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="tag">🚀 AI • Machine Learning • Data Science</div>
+    <h1>Agentic AI <span class="grad">CSV Intelligence</span> System</h1>
+    <p>Upload a CSV dataset, PDF, or DOCX document and let the AI agent clean it, analyze it, train
+      quick models, and answer your questions about it — in plain English.</p>
+    <div class="hero-buttons">
+      <button class="btn btn-primary" id="getStartedBtn">▶ Get Started</button>
+      <button class="btn btn-outline" id="heroUploadBtn">📤 Upload Dataset</button>
+    </div>
+  </div>
+
+  <div class="hero-right glass-card">
+    <h3>🔵 AI Agent Status</h3>
+    <div class="status-row">
+      <span>Backend</span>
+      <span id="statBackend" class="pill pill-warn">Checking...</span>
+    </div>
+    <div class="status-row">
+      <span>Dataset Loaded</span>
+      <span id="statDataset" class="pill pill-warn">Waiting</span>
+    </div>
+    <div class="status-row">
+      <span>Model</span>
+      <span id="statModel" class="pill">Groq · GPT-OSS 120B</span>
+    </div>
+    <div class="status-row">
+      <span>Insights Generated</span>
+      <span id="statInsights" class="pill">0</span>
+    </div>
+  </div>
+</section>
+
+<!-- UPLOAD -->
+<section class="section" id="features">
+  <h2>Dataset Upload Center</h2>
+  <p class="subtitle">Upload a CSV dataset, or a PDF/DOCX document (notes, transcripts, records) — the AI adapts automatically.</p>
+
+  <div class="grid-3">
+    <div class="glass-card upload-card">
+      <input type="file" id="csvInput" accept=".csv,.pdf,.docx" hidden />
+      <button class="btn btn-primary" id="chooseFileBtn">📁 Choose CSV / PDF / DOCX File</button>
+      <p id="fileNameLabel" class="muted">No file selected</p>
+    </div>
+    <div class="glass-card center-card">
+      <div class="icon">📦</div>
+      <h4>File Size</h4>
+      <div class="big-stat" id="datasetSize">0 KB</div>
+    </div>
+    <div class="glass-card center-card">
+      <div class="icon">✅</div>
+      <h4>Status</h4>
+      <div class="big-stat" id="uploadStatus">Waiting</div>
+    </div>
+  </div>
+
+  <h2 class="mt">Dataset Preview Dashboard</h2>
+  <p class="subtitle">Preview your upload before starting the AI analysis.</p>
+
+  <div class="grid-2">
+    <div class="glass-card">
+      <div class="row-between">
+        <h4>📋 Preview</h4>
+        <div>
+          <button class="btn btn-primary btn-sm" id="startAnalysisBtn">▶ Start AI Analysis</button>
+          <button class="btn btn-danger btn-sm" id="reportBtn">📄 Generate AI Report</button>
+          <button class="btn btn-outline btn-sm" id="presentationBtn">📽 Auto Presentation</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table id="previewTable"><thead></thead><tbody></tbody></table></div>
+
+      <!-- AI SMART SEARCH (CSV only) -->
+      <div class="smart-search-row" id="smartSearchRow">
+        <input type="text" id="smartSearchInput" placeholder='🔎 Ask in plain English — "show high income customers", "top 10 spenders"...' />
+        <button class="btn btn-outline btn-sm" id="smartSearchBtn">Search</button>
+      </div>
+      <p class="muted" id="smartSearchNote" style="display:none;"></p>
+      <div class="table-wrap" id="smartSearchResultWrap" style="display:none;">
+        <table id="smartSearchTable"><thead></thead><tbody></tbody></table>
+      </div>
+    </div>
+    <div class="glass-card">
+      <div class="center-card">
+        <div class="icon">📄</div>
+        <h4>File Name</h4>
+        <div class="big-stat small" id="datasetName">Not Uploaded</div>
+        <span class="pill mt" id="datasetTypeBadge" style="display:none;">--</span>
+      </div>
+      <div class="center-card">
+        <div class="icon">📊</div>
+        <h4 id="previewRowsLabel">Preview Rows</h4>
+        <div class="big-stat small" id="previewRows">0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHENTICITY CHECK -->
+<section class="section">
+  <h2>Data Authenticity Check</h2>
+  <p class="subtitle">A heuristic signal for whether this looks like organic real-world data or synthetically generated data.</p>
+
+  <div class="glass-card auth-card">
+    <div class="auth-header">
+      <div class="auth-score-circle" id="authScoreCircle">
+        <span id="authScoreNumber">--</span>
+      </div>
+      <div class="auth-header-text">
+        <div class="auth-verdict" id="authVerdict">Upload a dataset to check</div>
+        <div class="muted" id="authSubtext">Runs automatically when you upload a CSV.</div>
+      </div>
+    </div>
+
+    <div id="authSignals" class="auth-signals"></div>
+
+    <p class="auth-disclaimer">
+      ⚠️ This is a statistical heuristic, not proof. It flags patterns common in synthetic/demo
+      datasets (uniform distributions, equal-weight categories, gapless sequential IDs, poor
+      Benford's Law fit) versus patterns typical of organically collected data. It cannot and
+      does not verify a file's true origin.
+    </p>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="section" id="dashboard">
+  <h2>AI Analytics Dashboard</h2>
+  <p class="subtitle">Monitor the AI agent while it processes your dataset.</p>
+
+
+  <div class="grid-3">
+    <div class="glass-card center-card"><div class="icon">🧠</div><h4>AI Status</h4><div class="big-stat" id="aiStatus">Waiting</div></div>
+    <div class="glass-card center-card"><div class="icon">🧹</div><h4>Missing Values</h4><div class="big-stat" id="missingValues">0</div></div>
+    <div class="glass-card center-card"><div class="icon">📑</div><h4>Duplicate Rows</h4><div class="big-stat" id="duplicateRows">0</div></div>
+    <div class="glass-card center-card"><div class="icon">📶</div><h4>Total Features</h4><div class="big-stat" id="totalFeatures">0</div></div>
+    <div class="glass-card center-card"><div class="icon">🗄️</div><h4>Total Records</h4><div class="big-stat" id="totalRecords">0</div></div>
+    <div class="glass-card center-card"><div class="icon">📈</div><h4>AI Confidence</h4><div class="big-stat" id="aiConfidence">0%</div></div>
+  </div>
+
+  <div class="glass-card progress-card">
+    <h4>AI Processing Progress</h4>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <p class="muted" id="progressLabel">Waiting for dataset...</p>
+  </div>
+</section>
+
+<!-- CLEANING PIPELINE -->
+<section class="section">
+  <h2>Agentic AI Data Cleaning Pipeline</h2>
+  <p class="subtitle">The AI Agent automatically cleans and prepares your dataset.</p>
+  <div class="grid-3">
+    <div class="glass-card center-card"><div class="icon">📤</div><h4>Dataset Uploaded</h4><div class="pill pill-warn" id="stepUploaded">Waiting...</div></div>
+    <div class="glass-card center-card"><div class="icon">🔍</div><h4>Missing Values</h4><div class="pill pill-warn" id="stepMissing">Waiting...</div></div>
+    <div class="glass-card center-card"><div class="icon">📄</div><h4>Duplicate Check</h4><div class="pill pill-warn" id="stepDup">Waiting...</div></div>
+    <div class="glass-card center-card"><div class="icon">🎯</div><h4>Outlier Detection</h4><div class="pill pill-warn" id="stepOutlier">Waiting...</div></div>
+    <div class="glass-card center-card"><div class="icon">⚙️</div><h4>Feature Engineering</h4><div class="pill pill-warn" id="stepFeature">Waiting...</div></div>
+    <div class="glass-card center-card"><div class="icon">✅</div><h4>Data Ready</h4><div class="pill pill-warn" id="stepReady">Waiting...</div></div>
+  </div>
+</section>
+
+<!-- ML DASHBOARD -->
+<section class="section">
+  <h2>Machine Learning Dashboard</h2>
+  <p class="subtitle">Agentic AI automatically trains models and selects the best-performing one.</p>
+  <div class="grid-4">
+    <div class="glass-card center-card"><div class="icon">🧩</div><h4>K-Means Clustering</h4><div class="muted">Status</div><div class="big-stat small" id="mlKmeans">Waiting</div></div>
+    <div class="glass-card center-card"><div class="icon">🌳</div><h4>Decision Tree</h4><div class="muted">Accuracy</div><div class="big-stat small" id="mlDT">0%</div></div>
+    <div class="glass-card center-card"><div class="icon">🌲</div><h4>Random Forest</h4><div class="muted">Accuracy</div><div class="big-stat small" id="mlRF">0%</div></div>
+    <div class="glass-card center-card"><div class="icon">⚡</div><h4>Segments Found</h4><div class="muted">Clusters</div><div class="big-stat small" id="mlSegments">0</div></div>
+  </div>
+  <div class="glass-card best-model-card">
+    <h4>🏆 Best Performing Model</h4>
+    <div class="best-model-name" id="bestModel">Waiting...</div>
+    <p class="muted">Accuracy: <span id="bestAccuracy">0%</span></p>
+    <p class="ml-skip-note" id="mlSkipNote" style="display:none;"></p>
+  </div>
+</section>
+
+<!-- MODEL EXPLAINABILITY -->
+<section class="section">
+  <h2>Model Explainability</h2>
+  <p class="subtitle">Which columns actually drove the prediction, and how features relate to each other.</p>
+  <div class="grid-2">
+    <div class="glass-card">
+      <h4>🔥 Correlation Heatmap</h4>
+      <div id="correlationHeatmap" class="heatmap-wrap">
+        <p class="muted">Run "Start AI Analysis" to see column correlations.</p>
+      </div>
+    </div>
+    <div class="glass-card">
+      <h4>📶 Feature Importance</h4>
+      <div id="featureImportanceList" class="importance-list">
+        <p class="muted">Run "Start AI Analysis" to see which columns matter most.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISUAL ANALYTICS -->
+<section class="section" id="insights">
+  <h2>AI Visual Analytics</h2>
+  <p class="subtitle">Interactive charts generated from the uploaded dataset. Click any slice/bar and the AI will explain it.</p>
+  <div class="grid-2">
+    <div class="glass-card"><h4>🥧 Category Breakdown</h4><canvas id="pieChart"></canvas><p class="chart-explain" id="pieExplain"></p></div>
+    <div class="glass-card"><h4>📊 Value Distribution</h4><canvas id="barChart"></canvas><p class="chart-explain" id="barExplain"></p></div>
+  </div>
+</section>
+
+<!-- AI BUSINESS CONSULTANT + EXECUTIVE SUMMARY + HEALTH SCORE + RECOMMENDATION CARDS -->
+<section class="section" id="consultant">
+  <h2>🧑‍💼 AI Business Consultant</h2>
+  <p class="subtitle">The AI reads the results and talks to you like a consultant — no questions needed.</p>
+
+  <div class="glass-card consultant-card">
+    <h4 id="consultantInsightsHeading">📊 Top Insights</h4>
+    <ul class="ai-insights-list" id="consultantInsights">
+      <li class="muted">Run "Start AI Analysis" to generate insights automatically.</li>
+    </ul>
+  </div>
+
+  <div class="grid-3 mt" id="recommendationCards">
+    <!-- populated by JS -->
+  </div>
+
+  <div class="grid-2 mt">
+    <div class="glass-card center-card">
+      <h4>💚 Dataset Health Score</h4>
+      <svg class="gauge-svg" viewBox="0 0 120 120">
+        <circle class="gauge-track" cx="60" cy="60" r="50"></circle>
+        <circle class="gauge-fill" id="healthGaugeFill" cx="60" cy="60" r="50"></circle>
+      </svg>
+      <div class="gauge-label" id="healthGaugeLabel">--</div>
+      <div class="muted" id="healthGaugeGrade">Upload a dataset to check</div>
+    </div>
+    <div class="glass-card center-card">
+      <h4>📈 AI Confidence Meter</h4>
+      <svg class="gauge-svg" viewBox="0 0 120 120">
+        <circle class="gauge-track" cx="60" cy="60" r="50"></circle>
+        <circle class="gauge-fill confidence" id="confidenceGaugeFill" cx="60" cy="60" r="50"></circle>
+      </svg>
+      <div class="gauge-label" id="confidenceGaugeLabel">--</div>
+      <div class="muted">Best model accuracy</div>
+    </div>
+  </div>
+
+  <div class="glass-card exec-summary-card mt">
+    <h4>🏆 AI Executive Summary</h4>
+    <div class="exec-grid" id="execSummaryGrid">
+      <p class="muted">Run "Start AI Analysis" to generate the executive summary.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AI CUSTOMER PERSONAS -->
+<section class="section">
+  <h2>👥 AI Customer Persona Generator</h2>
+  <p class="subtitle">Auto-generated personas representing each customer segment found by clustering.</p>
+  <div class="grid-3" id="personaCards">
+    <p class="muted">Run "Start AI Analysis" to generate personas.</p>
+  </div>
+</section>
+
+<!-- AI WHAT-IF SIMULATOR -->
+<section class="section" id="whatif">
+  <h2>🎛 AI What-If Simulator</h2>
+  <p class="subtitle">Adjust values and the AI instantly predicts the outcome using the trained model.</p>
+  <div class="grid-2">
+    <div class="glass-card" id="whatifControls">
+      <p class="muted">Run "Start AI Analysis" first to unlock the simulator.</p>
+    </div>
+    <div class="glass-card center-card">
+      <div class="icon">🔮</div>
+      <h4>Prediction</h4>
+      <div class="big-stat" id="whatifClass">--</div>
+      <p class="muted" id="whatifConfidence"></p>
+      <div class="big-stat small" id="whatifCluster" style="margin-top:14px;">--</div>
+      <p class="muted" id="whatifClusterPct"></p>
+    </div>
+  </div>
+</section>
+
+<!-- AI DOCUMENT INTELLIGENCE DASHBOARD (PDF/DOCX only) -->
+<section class="section" id="docIntel" style="display:none;">
+  <h2>📄 AI Document Intelligence Dashboard</h2>
+  <p class="subtitle">Deep analysis of your uploaded document — summary, key info, sections, notes, quiz, and comparison.</p>
+
+  <div class="doc-intel-tabs" id="docIntelTabs">
+    <button class="doc-intel-tab active" data-tab="summary">📄 Summary</button>
+    <button class="doc-intel-tab" data-tab="entities">🔍 Key Info</button>
+    <button class="doc-intel-tab" data-tab="sections">📑 Sections</button>
+    <button class="doc-intel-tab" data-tab="notes">📝 Notes</button>
+    <button class="doc-intel-tab" data-tab="quiz">🎯 Quiz</button>
+    <button class="doc-intel-tab" data-tab="compare">🔄 Compare</button>
+    <button class="doc-intel-tab" data-tab="score">📊 Score</button>
+  </div>
+
+  <div class="doc-intel-panel" id="docIntelPanel-summary">
+    <p class="muted">Run "Start AI Analysis" to generate the document summary.</p>
+  </div>
+  <div class="doc-intel-panel" id="docIntelPanel-entities" style="display:none;">
+    <p class="muted">Click this tab to extract key information.</p>
+  </div>
+  <div class="doc-intel-panel" id="docIntelPanel-sections" style="display:none;">
+    <p class="muted">Click this tab to detect document sections.</p>
+  </div>
+  <div class="doc-intel-panel" id="docIntelPanel-notes" style="display:none;">
+    <p class="muted">Click this tab to generate study notes.</p>
+  </div>
+  <div class="doc-intel-panel" id="docIntelPanel-quiz" style="display:none;">
+    <div class="glass-card">
+      <div class="row-between">
+        <h4>🎯 AI Quiz Generator</h4>
+        <div class="doc-quiz-controls">
+          <select id="docQuizType">
+            <option value="mcq">Multiple Choice</option>
+            <option value="short">Short Answer</option>
+            <option value="interview">Interview Style</option>
+          </select>
+          <select id="docQuizCount">
+            <option value="3">3 Questions</option>
+            <option value="5" selected>5 Questions</option>
+            <option value="8">8 Questions</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="docQuizGenerateBtn">Generate Quiz</button>
+        </div>
+      </div>
+      <div id="docQuizArea"><p class="muted">Choose a type and click "Generate Quiz".</p></div>
+    </div>
+  </div>
+  <div class="doc-intel-panel" id="docIntelPanel-compare" style="display:none;">
+    <div class="glass-card">
+      <h4>🔄 Compare With Another Document</h4>
+      <p class="muted">Upload a second PDF/DOCX to compare against your current document.</p>
+      <input type="file" id="docCompareInput" accept=".pdf,.docx" hidden />
+      <button class="btn btn-primary btn-sm" id="docCompareUploadBtn">📤 Upload Document B</button>
+      <span class="muted" id="docCompareStatus"></span>
+      <div id="docCompareArea" class="mt"></div>
+    </div>
+  </div>
+  <div class="doc-intel-panel" id="docIntelPanel-score" style="display:none;">
+    <p class="muted">Run "Start AI Analysis" to compute the document intelligence score.</p>
+  </div>
+</section>
+
+<!-- CHAT -->
+<section class="section" id="chat">
+  <h2>Agentic AI Assistant</h2>
+  <p class="subtitle">Ask questions about your uploaded dataset — type, speak, or try "show me X vs Y".</p>
+
+  <div class="glass-card chat-card">
+    <div class="chat-header">
+      <span class="dot-online"></span> Agent Online
+      <div class="chat-header-actions">
+        <label class="voice-reply-toggle"><input type="checkbox" id="voiceReplyToggle"/> 🔊 Voice replies</label>
+        <button class="btn btn-outline btn-sm" id="explainAnomalyBtn">🔎 Explain an Anomaly</button>
+        <button class="btn btn-outline btn-sm" id="clearChatBtn">🗑 Clear Chat</button>
+      </div>
+    </div>
+    <div class="chat-window" id="chatWindow">
+      <div class="chat-bubble bot" id="chatWelcomeBubble">👋 Hello! I'm your Agentic AI Assistant. Upload a CSV, PDF, or DOCX file and ask me questions like "what's the average of column X?", "summarize this document", or click "Explain an Anomaly".</div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Ask something about your data..." />
+      <button class="btn btn-outline mic-btn" id="micBtn" title="Speak your question">🎤</button>
+      <button class="btn btn-primary" id="chatSendBtn">Send</button>
+    </div>
+  </div>
+</section>
+
+
+<!-- HISTORY -->
+<section class="section" id="history">
+  <div class="row-between" style="max-width: 800px; margin: 0 auto 8px;">
+    <div>
+      <h2 style="text-align:left; margin-bottom:4px;">Upload History</h2>
+      <p class="subtitle" style="text-align:left; margin-bottom:0;">Every dataset you've uploaded this session.</p>
+    </div>
+    <button class="btn btn-outline btn-sm" id="clearHistoryBtn">🗑 Clear</button>
+  </div>
+
+  <div class="glass-card history-card">
+    <div id="historyList">
+      <p class="muted" id="historyEmpty">No datasets uploaded yet this session.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Built with FastAPI · Groq (GPT-OSS 120B) · Vanilla JS — Agentic AI Project</p>
+   <p class="footer-credit">
+    Developed by <strong>Rohan Bhowmik</strong>
+    ·
+    <a href="https://www.instagram.com/rohan_._.bhowmik.84?igsh=MWx3dWM5dHl1dWZsbQ==" target="_blank" rel="noopener">Instagram</a>
+    ·
+    <a href="https://www.linkedin.com/in/rohan-bhowmik-b014473a1" target="_blank" rel="noopener">LinkedIn</a>
+    ·
+    <a href="https://github.com/rohanbhowm25308"  target="_blank" rel="noopener">GitHub</a>
+  </p>
+</footer>
+
+<script src="script.js"></script>
+<script src="advanced.js"></script>
+<script src="doc-intel.js"></script>
+</body>
+</html>

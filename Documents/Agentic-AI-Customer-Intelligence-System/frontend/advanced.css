@@ -1,0 +1,274 @@
+/* =========================================================================
+   advanced.css — styling for the 15 new AI features. Reuses the existing
+   design tokens (--accent, --glass, etc.) defined in style.css so nothing
+   here clashes with the original look.
+========================================================================= */
+
+.mt { margin-top: 24px; }
+
+/* ---- 2. AI Auto Dashboard loading overlay ---- */
+.ai-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 16, 0.82);
+  backdrop-filter: blur(6px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ai-loading-box {
+  padding: 36px 44px;
+  text-align: center;
+  min-width: 320px;
+}
+.ai-loading-brain { font-size: 2.6rem; animation: ai-pulse 1.4s ease-in-out infinite; margin-bottom: 8px; }
+@keyframes ai-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } }
+.ai-loading-steps { list-style: none; padding: 0; margin: 18px 0 0; text-align: left; }
+.ai-loading-steps li {
+  padding: 8px 4px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ai-loading-steps li::before { content: "○"; color: var(--muted); }
+.ai-loading-steps li.active { color: var(--accent2); font-weight: 600; }
+.ai-loading-steps li.active::before { content: "◐"; color: var(--accent); animation: spin-cold-start 0.9s linear infinite; }
+.ai-loading-steps li.done { color: var(--green); }
+.ai-loading-steps li.done::before { content: "✓"; color: var(--green); }
+
+.ai-process-log {
+  margin-top: 16px;
+  max-height: 160px;
+  overflow-y: auto;
+  text-align: left;
+  background: rgba(0,0,0,0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  font-family: "SFMono-Regular", Consolas, monospace;
+}
+.ai-process-log .log-line { color: var(--muted); }
+.ai-process-log .log-line.good { color: var(--green); }
+.ai-process-log .log-line.warn { color: var(--amber); }
+
+/* ---- 12. AI Live Notifications ---- */
+.ai-toast-stack {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 998;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+}
+.ai-toast {
+  background: rgba(11, 18, 32, 0.95);
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.4);
+  animation: toast-in 0.3s ease;
+}
+.ai-toast.warn { border-left-color: var(--amber); }
+.ai-toast.good { border-left-color: var(--green); }
+@keyframes toast-in { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes toast-out { to { transform: translateX(30px); opacity: 0; } }
+
+/* ---- 9. AI Talking Avatar ---- */
+.ai-avatar-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 997;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.ai-avatar-face {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(56,189,248,0.4);
+  animation: avatar-float 3s ease-in-out infinite;
+}
+@keyframes avatar-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.ai-avatar-bubble {
+  max-width: 260px;
+  background: rgba(11, 18, 32, 0.97);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.4);
+}
+
+/* ---- 14. AI Achievement System ---- */
+.ai-achievements-tray {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 997;
+}
+.ai-achievements-toggle {
+  background: rgba(11, 18, 32, 0.9);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.ai-achievements-list {
+  margin-top: 10px;
+  background: rgba(11, 18, 32, 0.97);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 12px;
+  width: 260px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.ai-achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  font-size: 0.82rem;
+  opacity: 0.4;
+}
+.ai-achievement-item.unlocked { opacity: 1; }
+.ai-achievement-icon { font-size: 1.3rem; }
+
+/* ---- 1/5/6/15. AI Consultant, cards, gauges, executive summary ---- */
+.consultant-card ul.ai-insights-list { list-style: none; padding: 0; margin: 0; }
+.ai-insights-list li {
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: rgba(56, 189, 248, 0.06);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.rec-card {
+  border-radius: 14px;
+  padding: 20px;
+  background: linear-gradient(160deg, rgba(56,189,248,0.12), rgba(34,211,238,0.04));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 0 24px rgba(56,189,248,0.08);
+}
+.rec-card .rec-tag { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent2); font-weight: 700; }
+.rec-card .rec-icon { font-size: 1.6rem; margin: 6px 0; }
+.rec-card h5 { margin: 4px 0 8px; font-size: 1.05rem; }
+.rec-card p { margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
+
+.gauge-svg { width: 140px; height: 140px; margin: 10px auto; transform: rotate(-90deg); }
+.gauge-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 10; }
+.gauge-fill {
+  fill: none;
+  stroke: var(--accent2);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 314;
+  stroke-dashoffset: 314;
+  transition: stroke-dashoffset 1s ease;
+}
+.gauge-fill.confidence { stroke: var(--green); }
+.gauge-label { font-size: 1.6rem; font-weight: 700; color: var(--text); margin-top: -86px; margin-bottom: 60px; }
+
+.exec-summary-card { text-align: center; }
+.exec-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 14px; }
+.exec-item { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 14px; }
+.exec-item .exec-value { font-size: 1.4rem; font-weight: 700; color: var(--accent2); }
+.exec-item .exec-label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+.exec-action { margin-top: 16px; padding: 14px; background: rgba(52,211,153,0.08); border-radius: 10px; color: var(--text); font-size: 0.9rem; border-left: 3px solid var(--green); text-align: left; }
+
+/* ---- 7. Persona cards ---- */
+.persona-card { text-align: center; }
+.persona-avatar { font-size: 2.6rem; }
+.persona-name { font-size: 1.1rem; font-weight: 700; margin-top: 6px; }
+.persona-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--glass-border); }
+.persona-row:last-child { border-bottom: none; }
+.persona-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent2);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ---- 8. What-If Simulator ---- */
+.whatif-field { margin-bottom: 16px; }
+.whatif-field label { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+.whatif-field input[type="range"] { width: 100%; accent-color: var(--accent); }
+.whatif-field select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+}
+
+/* ---- 11. Smart Search ---- */
+.smart-search-row { display: flex; gap: 10px; margin-top: 16px; }
+.smart-search-row input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+}
+.smart-search-row input:focus { outline: none; border-color: var(--accent); }
+
+/* ---- 4. Explainable charts ---- */
+.chart-explain {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--accent2);
+  min-height: 1.2em;
+  line-height: 1.4;
+}
+
+/* ---- AI Document Intelligence (PDF/DOCX) ---- */
+.pill-doc { background: rgba(56, 189, 248, 0.15); color: var(--accent2); }
+.history-type-pill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  vertical-align: middle;
+  background: rgba(255,255,255,0.08);
+  color: var(--muted);
+}
+.voice-reply-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--muted); cursor: pointer; }
+
+/* ---- "ready to analyze" pulse on Start AI Analysis, once upload finishes ---- */
+.btn-ready-pulse { animation: btn-pulse 1.4s ease-in-out infinite; }
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.55); }
+  50% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+}
+
+@media (max-width: 900px) {
+  .exec-grid { grid-template-columns: repeat(2, 1fr); }
+}
