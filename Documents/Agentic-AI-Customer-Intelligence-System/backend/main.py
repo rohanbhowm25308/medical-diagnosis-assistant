@@ -25,12 +25,16 @@ import advanced
 import documents
 import document_intelligence
 import auth
+import investigation
+import enterprise
 
 app = FastAPI(title="Agentic AI CSV Intelligence API")
 app.include_router(advanced.router)
 app.include_router(documents.router)
 app.include_router(document_intelligence.router)
 app.include_router(auth.router)
+app.include_router(investigation.router)
+app.include_router(enterprise.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -193,6 +197,8 @@ async def upload_csv(file: UploadFile = File(...)):
     STATE["target_col"] = None
     STATE["target_was_binned"] = False
     STATE["cluster_profiles"] = []
+    STATE["rf_y_test"] = []
+    STATE["rf_pred_test"] = []
     # A CSV upload replaces any previously uploaded PDF/DOCX document.
     STATE["document_text"] = None
     STATE["document_paragraphs"] = []
@@ -528,8 +534,11 @@ def _compute_ml_analysis(df: pd.DataFrame) -> dict:
 
                 rf = RandomForestClassifier(n_estimators=30, max_depth=8, random_state=42, n_jobs=-1)
                 rf.fit(X_train, y_train)
-                rf_acc = accuracy_score(y_test, rf.predict(X_test))
+                rf_pred = rf.predict(X_test)
+                rf_acc = accuracy_score(y_test, rf_pred)
                 result["random_forest"] = {"status": "done", "accuracy": round(rf_acc * 100, 1)}
+                STATE["rf_y_test"] = y_test.tolist()
+                STATE["rf_pred_test"] = rf_pred.tolist()
 
                 # Feature importance: which columns actually drove the prediction
                 importances = sorted(

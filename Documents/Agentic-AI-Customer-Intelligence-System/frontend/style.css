@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --bg: #070b16;
   --bg2: #0b1220;
   --accent: #38bdf8;
@@ -31,9 +32,10 @@ body {
 
 /* NAV */
 .navbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
+  gap: 24px;
   padding: 18px 48px;
   background: rgba(7, 11, 22, 0.7);
   backdrop-filter: blur(10px);
@@ -42,9 +44,14 @@ body {
   z-index: 100;
   border-bottom: 1px solid var(--glass-border);
 }
-.logo { font-size: 1.3rem; font-weight: 700; }
+.logo { font-size: 1.3rem; font-weight: 700; justify-self: start; }
 .logo span { color: var(--accent); }
-.nav-links { display: flex; gap: 28px; }
+.nav-links { display: flex; gap: 28px; justify-self: center; flex-wrap: wrap; justify-content: center; }
+.nav-actions { display: flex; align-items: center; gap: 10px; justify-self: end; flex-wrap: nowrap; }
+@media (max-width: 1100px) {
+  .navbar { grid-template-columns: 1fr; justify-items: center; row-gap: 14px; }
+  .logo, .nav-links, .nav-actions { justify-self: center; }
+}
 .nav-links a { color: var(--text); text-decoration: none; opacity: 0.85; font-size: 0.95rem; }
 .nav-links a:hover { color: var(--accent); opacity: 1; }
 
@@ -165,6 +172,7 @@ body {
 }
 
 .center-card { text-align: center; }
+.stat-value { font-size: 1.6rem; font-weight: 700; color: var(--text); margin: 14px 0 6px; }
 .icon { font-size: 1.8rem; margin-bottom: 8px; }
 .big-stat { font-size: 1.8rem; font-weight: 700; color: var(--accent2); margin-top: 6px; }
 .big-stat.small { font-size: 1.2rem; }

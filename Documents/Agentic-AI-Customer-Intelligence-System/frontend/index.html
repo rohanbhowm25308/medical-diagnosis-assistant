@@ -45,8 +45,10 @@
     <a href="#chat">Assistant</a>
     <a href="#history">History</a>
   </div>
-  <button class="btn btn-primary" id="navUploadBtn">📤 Upload File</button>
-  <button class="btn btn-outline" id="logoutBtn" style="margin-left:8px;" title="Sign out">⏻ Logout</button>
+  <div class="nav-actions">
+    <button class="btn btn-primary" id="navUploadBtn">📤 Upload File</button>
+    <button class="btn btn-outline" id="logoutBtn" title="Sign out">⏻ Logout</button>
+  </div>
 </nav>
 <script>
   document.getElementById('logoutBtn').addEventListener('click', async function () {
@@ -349,7 +351,170 @@
   </div>
 </section>
 
-<!-- AI CUSTOMER PERSONAS -->
+<!-- AI AUTONOMOUS INVESTIGATION -->
+<section class="section" id="investigation">
+  <h2>🔍 AI Autonomous Investigation</h2>
+  <p class="subtitle">Ask a business question. The AI decides what to investigate — you don't tell it what to check.</p>
+
+  <div class="glass-card">
+    <div class="investigation-input-row">
+      <input type="text" id="investigationQuestion" placeholder="e.g. Why did revenue decrease?" />
+      <button class="btn btn-primary" id="runInvestigationBtn">Investigate</button>
+    </div>
+    <p class="muted" id="investigationHint">Run "Start AI Analysis" first for the most complete investigation (adds customer-segment comparison).</p>
+  </div>
+
+  <div class="glass-card mt" id="investigationPanel" style="display:none;">
+    <h4>🕵️ Investigation</h4>
+    <ul class="investigation-steps" id="investigationSteps"></ul>
+
+    <div id="investigationResult" style="display:none;">
+      <h4 class="mt">Final finding</h4>
+      <p id="investigationFinalFinding"></p>
+
+      <h4>Evidence</h4>
+      <p id="investigationEvidence"></p>
+
+      <h4>Recommendation</h4>
+      <p id="investigationRecommendation"></p>
+
+      <div class="grid-2 mt" id="investigationImpactWrap" style="display:none;">
+        <div class="glass-card center-card">
+          <h4>💰 Estimated Impact</h4>
+          <div class="stat-value" id="investigationImpactValue">--</div>
+          <div class="muted" id="investigationImpactDetail"></div>
+        </div>
+        <div class="glass-card center-card">
+          <h4>📈 AI Confidence</h4>
+          <div class="stat-value" id="investigationConfidenceValue">--</div>
+          <div class="muted" id="investigationConfidenceDetail"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card mt">
+    <h4>🤖 AI Agent Organization</h4>
+    <div class="agent-org-grid" id="agentOrgGrid">
+      <p class="muted">Loading agent roster…</p>
+    </div>
+  </div>
+
+  <div class="glass-card mt" id="auditTimelinePanel">
+    <h4>🕒 Audit Timeline</h4>
+    <div class="audit-timeline" id="auditTimelineList">
+      <p class="muted">No investigations run yet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AI ENTERPRISE CONSOLE: the remaining 11 features -->
+<section class="section" id="enterpriseConsole">
+  <h2>🏛️ AI Enterprise Console</h2>
+  <p class="subtitle">Digital Twin, Root-Cause Graph, Confidence, Experiment Lab, Data Drift, Model Health, Red-Team, Governance, Kill Switch, and Cost Monitor.</p>
+
+  <!-- Digital Twin -->
+  <div class="glass-card">
+    <h4>🧬 AI Digital Twin</h4>
+    <div class="grid-4" id="twinCurrentGrid"><p class="muted">Loading…</p></div>
+    <div class="investigation-input-row mt">
+      <input type="number" id="twinRetentionChange" placeholder="Retention change %, e.g. 10" />
+      <button class="btn btn-primary" id="twinSimulateBtn">Simulate</button>
+    </div>
+    <div id="twinResult" class="mt" style="display:none;">
+      <div class="grid-3" id="twinResultGrid"></div>
+      <p class="muted mt" id="twinMethodology"></p>
+    </div>
+  </div>
+
+  <!-- Root-Cause Graph -->
+  <div class="glass-card mt">
+    <h4>🎯 AI Root-Cause Graph</h4>
+    <p class="muted">Built from your most recent AI Investigation above — run one first if this is empty.</p>
+    <div id="rootCauseGraph"><p class="muted">No investigation run yet.</p></div>
+  </div>
+
+  <!-- Confidence Engine -->
+  <div class="glass-card mt">
+    <h4>📈 AI Confidence &amp; Uncertainty Engine</h4>
+    <div id="confidencePanel"><p class="muted">Loading…</p></div>
+  </div>
+
+  <!-- Why This / Why Not -->
+  <div class="glass-card mt">
+    <h4>🤔 Why This? / Why Not That?</h4>
+    <div id="segmentReasoningPanel"><p class="muted">Loading…</p></div>
+  </div>
+
+  <!-- Experiment Lab -->
+  <div class="glass-card mt">
+    <h4>🧪 AI Experiment Lab</h4>
+    <div class="investigation-input-row">
+      <select id="experimentFeatureCol" style="flex:1;"></select>
+      <button class="btn btn-outline" id="experimentRefreshBtn" title="Reload column list after uploading a new dataset">🔄 Refresh columns</button>
+    </div>
+    <div class="grid-2 mt">
+      <input type="number" id="experimentControl" placeholder="Control value" />
+      <input type="number" id="experimentValue" placeholder="Experiment value" />
+    </div>
+    <button class="btn btn-primary mt" id="runExperimentBtn">Run Experiment</button>
+    <div id="experimentResult" class="mt" style="display:none;"></div>
+  </div>
+
+  <!-- Data Drift -->
+  <div class="glass-card mt">
+    <h4>📉 AI Data Drift &amp; Model Drift</h4>
+    <p class="muted">Set a baseline on your current dataset, then upload a new dataset and re-analyze before comparing.</p>
+    <div class="investigation-input-row">
+      <button class="btn btn-outline" id="driftBaselineBtn">Set Current Dataset as Baseline</button>
+      <button class="btn btn-primary" id="driftAnalyzeBtn">Compare to Baseline</button>
+    </div>
+    <div id="driftResult" class="mt"></div>
+  </div>
+
+  <!-- Model Health -->
+  <div class="glass-card mt">
+    <h4>🩺 AI Model Health Center</h4>
+    <div id="modelHealthPanel"><p class="muted">Run "Start AI Analysis" first.</p></div>
+  </div>
+
+  <!-- Red-Team -->
+  <div class="glass-card mt">
+    <h4>🛡️ AI Red-Team / Attack Simulator</h4>
+    <button class="btn btn-primary" id="redteamRunBtn">Run Attack Tests</button>
+    <div id="redteamResult" class="mt"></div>
+  </div>
+
+  <!-- Governance -->
+  <div class="glass-card mt">
+    <h4>🏛️ AI Governance Center</h4>
+    <div id="governancePanel"><p class="muted">Loading…</p></div>
+    <div class="investigation-input-row mt">
+      <label class="muted" for="autonomySelect">Autonomy level:</label>
+      <select id="autonomySelect">
+        <option value="1">Level 1 — Assist</option>
+        <option value="2">Level 2 — Approve</option>
+        <option value="3">Level 3 — Autonomous</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Kill Switch -->
+  <div class="glass-card mt">
+    <h4>🛑 AI Kill Switch</h4>
+    <div class="investigation-input-row">
+      <button class="btn btn-danger" id="killSwitchStopBtn">Emergency Stop All Agents</button>
+      <button class="btn btn-outline" id="killSwitchResumeBtn">Resume Agents</button>
+    </div>
+    <div id="killSwitchStatus" class="mt"></div>
+  </div>
+
+  <!-- Cost & Performance Monitor -->
+  <div class="glass-card mt">
+    <h4>💵 AI Cost &amp; Performance Monitor</h4>
+    <div class="grid-4" id="opsMonitorGrid"><p class="muted">Loading…</p></div>
+  </div>
+</section>
 <section class="section">
   <h2>👥 AI Customer Persona Generator</h2>
   <p class="subtitle">Auto-generated personas representing each customer segment found by clustering.</p>
@@ -499,5 +664,7 @@
 <script src="script.js"></script>
 <script src="advanced.js"></script>
 <script src="doc-intel.js"></script>
+<script src="investigation.js"></script>
+<script src="enterprise.js"></script>
 </body>
 </html>

@@ -40,4 +40,31 @@ STATE = {
     "document_unit_count": 0,        # page count (PDF) or paragraph count (DOCX)
     "compare_document_text": None,   # "Document B" for the comparison feature — separate from the primary document
     "compare_document_filename": None,
+
+    # --- AI Autonomous Investigation (investigation.py) — history of past
+    # investigations, most recent last, used by the Audit Timeline. ---
+    "investigation_history": [],
+
+    # --- Model Health Center (enterprise.py) — held from the last /api/analyze
+    # run so precision/recall/F1 can be computed without retraining. ---
+    "rf_y_test": [],
+    "rf_pred_test": [],
+
+    # --- AI Data Drift (enterprise.py) — a second dataset uploaded purely for
+    # comparison against the currently active one. ---
+    "drift_baseline_df": None,
+    "drift_baseline_filename": None,
+    "drift_last_result": None,
+
+    # --- AI Kill Switch (enterprise.py) — when False, every AI-agent endpoint
+    # (investigate, chat, chat-based features) refuses to run. Real gate, not
+    # cosmetic: checked inside the endpoints themselves. ---
+    "kill_switch_enabled": True,
+
+    # --- AI Cost & Performance Monitor (enterprise.py) — one entry per LLM
+    # call made anywhere in the app, so the dashboard reflects real usage. ---
+    "ops_log": [],
+
+    # --- AI Governance Center (enterprise.py) ---
+    "autonomy_level": 2,  # 1=Assist, 2=Approve (default), 3=Autonomous
 }
