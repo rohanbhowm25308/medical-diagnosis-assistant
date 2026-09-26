@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeriScope AI — Claim Verification &amp; Evidence Auditor</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><span class="hex-icon">⬡</span></div>
+      <div class="brand-text">
+        <div class="brand-title">VeriScope AI</div>
+        <div class="brand-sub">AI Claim Verification &amp; Evidence Auditor</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="analyze">
+        <span class="nav-ico">◈</span> Analyze
+      </button>
+      <button class="nav-item" data-view="dashboard">
+        <span class="nav-ico">▤</span> Dashboard
+      </button>
+      <button class="nav-item" data-view="queue">
+        <span class="nav-ico">⚑</span> Review Queue
+        <span class="nav-badge" id="queue-badge">0</span>
+      </button>
+      <button class="nav-item" data-view="history">
+        <span class="nav-ico">◷</span> History
+      </button>
+      <button class="nav-item" data-view="lab">
+        <span class="nav-ico">⚗</span> Model Lab
+      </button>
+      <button class="nav-item" data-view="research">
+        <span class="nav-ico">🔬</span> Research Analytics
+      </button>
+      <button class="nav-item" data-view="about">
+        <span class="nav-ico">ℹ</span> About the Research
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="threshold-box">
+        <label for="threshold-slider">Verification Sensitivity</label>
+        <input type="range" id="threshold-slider" min="0.3" max="0.75" step="0.05" value="0.5">
+        <div class="threshold-labels">
+          <span>Strict</span><span id="threshold-value">Balanced</span><span>Research</span>
+        </div>
+      </div>
+      <div class="groq-status" id="groq-status">
+        <span class="dot"></span> <span id="groq-status-text">Checking AI status…</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- ---------- ANALYZE VIEW ---------- -->
+    <section class="view active" id="view-analyze">
+      <header class="view-header">
+        <h1>Claim Verification Console</h1>
+        <p>Paste a claim, paragraph, or article. VeriScope AI extracts claims, decomposes compound
+           statements, and flags which ones cannot responsibly be accepted without external evidence.</p>
+      </header>
+
+      <div class="pipeline-strip" id="pipeline-strip">
+        <div class="pipeline-stage" data-stage="extract"><span class="stage-dot"></span>Extracting claims</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-stage" data-stage="context"><span class="stage-dot"></span>Checking context</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-stage" data-stage="evidence"><span class="stage-dot"></span>Retrieving evidence</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-stage" data-stage="conflict"><span class="stage-dot"></span>Detecting conflict</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-stage" data-stage="review"><span class="stage-dot"></span>Human review</div>
+      </div>
+
+      <div class="input-grid">
+        <div class="card input-card">
+          <div class="card-label">Text to Analyze</div>
+          <textarea id="input-text" placeholder="Paste a claim, paragraph, or full article here…
+
+Example: &quot;India has 28 states and will become the world's largest economy by 2030. The vaccine is 95 percent effective against the virus.&quot;"></textarea>
+          <div class="input-tools">
+            <label class="file-btn">
+              📎 Upload .txt file
+              <input type="file" id="file-input" accept=".txt" hidden>
+            </label>
+            <span id="file-name" class="file-name"></span>
+          </div>
+        </div>
+
+        <div class="card input-card">
+          <div class="card-label">Available Context <span class="optional">(optional — evidence source)</span></div>
+          <textarea id="input-context" placeholder="Paste any supporting document, article, or source text here. VeriScope AI will check whether it actually supports each claim, and use it for evidence retrieval."></textarea>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <label class="checkbox-row">
+          <input type="checkbox" id="decompose-toggle" checked> Decompose compound claims
+        </label>
+        <button class="btn btn-primary" id="analyze-btn">
+          <span class="btn-ico">⟡</span> Run VeriScope AI Analysis
+        </button>
+      </div>
+
+      <div id="loading-indicator" class="loading-status hidden">
+        <div class="status-line" data-status="extract"><span class="status-icon">○</span> Extracting claims</div>
+        <div class="status-line" data-status="linguistic"><span class="status-icon">○</span> Analyzing linguistic features</div>
+        <div class="status-line" data-status="context"><span class="status-icon">○</span> Checking context sufficiency</div>
+        <div class="status-line" data-status="uncertainty"><span class="status-icon">○</span> Estimating uncertainty</div>
+        <div class="status-line" data-status="evidence"><span class="status-icon">○</span> Retrieving evidence</div>
+        <div class="status-line" data-status="recommend"><span class="status-icon">○</span> Generating verification recommendation</div>
+      </div>
+
+      <div id="results-area" class="results-area hidden">
+
+        <div class="doc-score-card card">
+          <div class="doc-score-ring">
+            <svg viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" class="ring-bg"/>
+              <circle cx="60" cy="60" r="52" class="ring-fg" id="doc-score-ring"/>
+            </svg>
+            <div class="doc-score-num" id="doc-score-num">--</div>
+          </div>
+          <div class="doc-score-info">
+            <div class="doc-score-title">Document Verifiability Score</div>
+            <div class="doc-score-band" id="doc-score-band">—</div>
+            <div class="doc-score-desc">How much of this text can be responsibly assessed from
+              available context and linguistic signal. This is <b>not</b> a truth score.</div>
+          </div>
+          <div class="doc-score-actions">
+            <button class="btn btn-ghost" id="report-btn">📄 Generate Report</button>
+          </div>
+        </div>
+
+        <div class="summary-strip" id="summary-strip"></div>
+
+        <div class="highlighted-text-wrap card" id="highlighted-wrap">
+          <div class="card-label">Highlighted Source Text</div>
+          <div id="highlighted-text" class="highlighted-text"></div>
+        </div>
+
+        <div class="card-label section-label">Claim-by-Claim Analysis</div>
+        <div id="claims-list" class="claims-list"></div>
+      </div>
+    </section>
+
+    <!-- ---------- DASHBOARD VIEW ---------- -->
+    <section class="view" id="view-dashboard">
+      <header class="view-header">
+        <h1>Verification Dashboard</h1>
+        <p>Aggregate statistics across every claim VeriScope AI has analyzed this session.</p>
+      </header>
+      <div class="dash-grid">
+        <div class="card stat-card">
+          <div class="stat-num" id="stat-total">0</div>
+          <div class="stat-label">Total Claims Analyzed</div>
+        </div>
+        <div class="card stat-card sufficient">
+          <div class="stat-num" id="stat-sufficient">0</div>
+          <div class="stat-label">🟢 Context Sufficient</div>
+        </div>
+        <div class="card stat-card needs">
+          <div class="stat-num" id="stat-needs">0</div>
+          <div class="stat-label">🟡 Needs Verification</div>
+        </div>
+        <div class="card stat-card high">
+          <div class="stat-num" id="stat-high">0</div>
+          <div class="stat-label">🔴 High Priority</div>
+        </div>
+      </div>
+      <div class="dash-charts">
+        <div class="card chart-card"><div class="card-label">Verification Status</div><canvas id="chart-verdict"></canvas></div>
+        <div class="card chart-card"><div class="card-label">Claim Categories</div><canvas id="chart-category"></canvas></div>
+        <div class="card chart-card"><div class="card-label">Claim Types</div><canvas id="chart-type"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ---------- REVIEW QUEUE VIEW ---------- -->
+    <section class="view" id="view-queue">
+      <header class="view-header">
+        <h1>Priority-Based Human Review Queue</h1>
+        <p>Claims flagged as high-risk, time-sensitive, low-confidence, or evidence-conflicting are routed here automatically.</p>
+      </header>
+      <div id="queue-list" class="queue-list"></div>
+    </section>
+
+    <!-- ---------- HISTORY VIEW ---------- -->
+    <section class="view" id="view-history">
+      <header class="view-header">
+        <h1>Claim History</h1>
+        <p>Every claim analyzed this session, most recent first.</p>
+      </header>
+      <div class="history-table-wrap card">
+        <table class="history-table">
+          <thead><tr><th>Date</th><th>Claim</th><th>Verdict</th><th>Risk</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ---------- MODEL LAB VIEW ---------- -->
+    <section class="view" id="view-lab">
+      <header class="view-header">
+        <h1>Model Comparison Laboratory</h1>
+        <p>Baseline experiment results: four classical ML models trained on the same
+           TF-IDF + engineered-feature representation of the seed claim dataset.</p>
+      </header>
+      <div class="card" id="lab-summary"></div>
+      <div class="card table-card">
+        <table class="lab-table" id="lab-table">
+          <thead><tr><th>Model</th><th>Test Accuracy</th><th>Test Precision (macro)</th><th>Test Recall (macro)</th><th>Test F1 (macro)</th><th>5-fold CV F1</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card-label section-label">Error Analysis (best model, held-out test set)</div>
+      <div id="error-list" class="error-list"></div>
+    </section>
+
+    <!-- ---------- RESEARCH ANALYTICS VIEW ---------- -->
+    <section class="view" id="view-research">
+      <header class="view-header">
+        <h1>Research Analytics Dashboard</h1>
+        <p>AI-behavior metrics computed from real stored history and reviewer feedback, plus
+           feature importance from the trained model — for the presentation and write-up.</p>
+      </header>
+      <div class="dash-grid" id="research-stat-grid"></div>
+      <div class="card" id="feature-importance-card">
+        <div class="card-label">Feature Importance (best model)</div>
+        <div id="feature-importance-body"></div>
+      </div>
+      <div class="card" id="retrieval-benchmark-card" style="margin-top:16px;">
+        <div class="card-label">Retrieval Method Benchmark (hand-labeled, n=20)</div>
+        <div id="retrieval-benchmark-body"></div>
+      </div>
+      <div class="action-row" style="margin-top:16px;justify-content:flex-start;">
+        <button class="btn btn-ghost" id="export-feedback-btn">📤 Export Reviewed Cases for Retraining</button>
+      </div>
+    </section>
+
+    <!-- ---------- ABOUT VIEW ---------- -->
+    <section class="view" id="view-about">
+      <header class="view-header">
+        <h1>About This Research Prototype</h1>
+        <p>Learn Depth · Problem ML-T2-061 · Detecting Claims That Require External Verification</p>
+      </header>
+      <div class="card about-card">
+        <h3>Central Research Question</h3>
+        <p>"Can an NLP system recognize when a claim cannot responsibly be accepted without external evidence?"</p>
+        <h3>What this system does NOT do</h3>
+        <p>It does not classify claims as true or false. It classifies whether the claim can be
+           <i>responsibly accepted</i> given the available context, and routes uncertain or
+           high-stakes claims toward evidence retrieval and human review.</p>
+        <h3>Pipeline</h3>
+        <p>Text → sentence segmentation → claim filtering → compound decomposition → linguistic
+           feature engineering → hybrid ML+rule verdict → context-sufficiency &amp; risk scoring →
+           evidence retrieval (TF-IDF) → conflict detection → human review routing.</p>
+        <h3>Datasets</h3>
+        <p><b>Real, human-annotated data:</b> ~17,600 sentences from the CLEF CheckThat! 2019 shared task
+           (US presidential debates/speeches, 2016–2019), professionally fact-checked and labeled
+           check-worthy or not. Trains a dedicated binary check-worthiness model, whose probability
+           output is blended into the fine-grained classifier as one input feature.</p>
+        <p><b>Synthetic seed set (175 examples):</b> weakly-labeled, programmatically-authored claims
+           covering the difficult cases the problem statement names (compound, temporal, conditional,
+           implicit). Trains the fine-grained context_sufficient / needs_verification / high_priority
+           classifier via 5-fold cross-validation. See <code>backend/data/build_seed_dataset_v2.py</code>.</p>
+        <h3>Baseline model</h3>
+        <p id="about-model-line">Loading model info…</p>
+        <h3>Known limitations</h3>
+        <ul>
+          <li>The 3-way seed dataset (n≈175) is still weakly-labeled and programmatically generated,
+              though now roughly balanced across labels and blended with a real-data signal (see above)
+              — a documented placeholder for a fully human-annotated 3-way corpus.</li>
+          <li>Local evidence retrieval uses BM25 (with stemming) over whatever context the user
+              supplies. An optional web-search fallback via Groq's <code>groq/compound</code> model
+              (built-in, citation-backed search) is available when a GROQ_API_KEY is configured.</li>
+          <li>Claim extraction uses lightweight regex/rule-based sentence and clause splitting rather
+              than a dependency parser, to stay dependency-light and fully explainable.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      <div class="footer-build">🧠 VeriScope AI · NLP Claim Verification Engine</div>
+      <span class="footer-divider">|</span>
+      <div class="footer-credit">Developed by <b>Rohan Bhowmik</b></div>
+      <span class="footer-divider">|</span>
+      <div class="footer-socials">
+        <a href="https://github.com/rohanbhowm25308" target="_blank" rel="noopener" title="GitHub">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.02 1.75 2.68 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.59.24 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .3.2.66.79.55C20.71 21.38 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"/></svg>
+        </a>
+        <a href="https://linkedin.com/in/rohanbhowmik" target="_blank" rel="noopener" title="LinkedIn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.11 20.45H3.56V9h3.55v11.45zM22.22 0H1.77C.8 0 0 .78 0 1.75v20.5C0 23.22.8 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.75V1.75C24 .78 23.2 0 22.22 0z"/></svg>
+        </a>
+        <a href="https://instagram.com/rohanbhowmik" target="_blank" rel="noopener" title="Instagram">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.24 2.22.41.56.21.96.47 1.38.89.42.42.68.82.89 1.38.17.42.36 1.05.41 2.22.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.24 1.8-.41 2.22-.21.56-.47.96-.89 1.38-.42.42-.82.68-1.38.89-.42.17-1.05.36-2.22.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.24-2.22-.41a3.72 3.72 0 0 1-1.38-.89 3.72 3.72 0 0 1-.89-1.38c-.17-.42-.36-1.05-.41-2.22C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.24-1.8.41-2.22.21-.56.47-.96.89-1.38.42-.42.82-.68 1.38-.89.42-.17 1.05-.36 2.22-.41C8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56a5.9 5.9 0 0 0-2.13 1.39A5.9 5.9 0 0 0 .62 4.15c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.3.79.71 1.46 1.38 2.12.66.67 1.32 1.08 2.12 1.38.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56a5.9 5.9 0 0 0 2.12-1.38 5.9 5.9 0 0 0 1.38-2.12c.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91a5.9 5.9 0 0 0-1.38-2.12A5.9 5.9 0 0 0 19.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 12 18.16 6.16 6.16 0 0 0 12 5.84zm0 10.16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm7.85-10.4a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"/></svg>
+        </a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<!-- ============ CLAIM DETAIL MODAL ============ -->
+<div id="claim-modal" class="modal hidden">
+  <div class="modal-backdrop"></div>
+  <div class="modal-panel">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ============ CHAT WIDGET ============ -->
+<div class="chat-widget" id="chat-widget">
+  <button class="chat-toggle" id="chat-toggle">💬</button>
+  <div class="chat-panel hidden" id="chat-panel">
+    <div class="chat-header">VeriScope AI Assistant <span id="chat-groq-badge" class="chat-badge"></span></div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg bot">Ask me about a claim, verification strategy, or how VeriScope AI's
+        scoring works. I won't declare anything true or false — I'll help you figure out what to check.</div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask a question…">
+      <button id="chat-mic" title="Speak your question">🎤</button>
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+</div>
+
+<script src="bg.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
